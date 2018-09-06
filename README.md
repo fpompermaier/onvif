@@ -6,6 +6,14 @@ This project aims to improve https://github.com/milg0/onvif-java-lib.<br>
 I've tried to convice its author to use to my code but it seems we have different objectives: my goal is to create a project that focus on the funny part of the development of an ONVIF application, **keeping the interaction with the WS as simple as possible** and delege that annoying part to Apache CXF in order to not waste the developer time in writing (and MAINTAINING) code that interacts with ONVIF web services.<br>
 My wish is to help other developers willing to contribute to an enterprise-level Java library for ONVIF devices.
 
+Fork improvements (quonn77)
+=============
+* onvif-ws-client: WS stubs are no more part of the repository, you can simply generate them using the most updated version of the wsdl files.
+Generated source files are under target/generated-sources standard maven folder.
+* WSSE UsernameToken: Support for username token authentication has been added. You have to properly initiliaze UTPasswordCallback class by
+providing the username, password pairs using the setAliasPassword method.
+* Multi network card support. In order to avoid problem on a multinetwork environment you can specify which is the name of the network adapter to use (E.g. eth0).
+You have to provide it using JVM parameter -DnetworkInterface=<network interface name> (default eth0)
 Apported improvements
 =============
 * Project **mavenization** and **modularization** (separation between Java stubs and application) and 

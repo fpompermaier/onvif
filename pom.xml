@@ -8,7 +8,7 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<cxf.version>3.1.10</cxf.version>
+		<cxf.version>3.2.4</cxf.version>
 	</properties>
 
 	<modules>

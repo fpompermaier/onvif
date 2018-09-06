@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -9,6 +10,14 @@
 	<artifactId>onvif-java</artifactId>
 
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.0</version>
+			<scope>provided</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
@@ -24,16 +33,16 @@
 			<artifactId>cxf-rt-transports-http</artifactId>
 			<version>${cxf.version}</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.cxf.services.ws-discovery</groupId> -->
-<!-- 			<artifactId>cxf-services-ws-discovery-api</artifactId> -->
-<!-- 			<version>${cxf.version}</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.cxf.services.ws-discovery</groupId> -->
-<!-- 			<artifactId>cxf-services-ws-discovery-service</artifactId> -->
-<!-- 			<version>${cxf.version}</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.apache.cxf.services.ws-discovery</groupId> -->
+		<!-- <artifactId>cxf-services-ws-discovery-api</artifactId> -->
+		<!-- <version>${cxf.version}</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.apache.cxf.services.ws-discovery</groupId> -->
+		<!-- <artifactId>cxf-services-ws-discovery-service</artifactId> -->
+		<!-- <version>${cxf.version}</version> -->
+		<!-- </dependency> -->
 
 		<dependency>
 			<groupId>org.onvif</groupId>
@@ -53,9 +62,14 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.4</version>
+			<version>3.7</version>
 		</dependency>
-
+		<!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-common-utilities -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-common-utilities</artifactId>
+			<version>2.5.11</version>
+		</dependency>
 	</dependencies>
 
 </project>

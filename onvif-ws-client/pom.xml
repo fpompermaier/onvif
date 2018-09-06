@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -39,6 +40,18 @@
 			<artifactId>cxf-services-wsn-core</artifactId>
 			<version>${cxf.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.7</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.cxf.xjc-utils/cxf-xjc-runtime -->
+		<dependency>
+			<groupId>org.apache.cxf.xjc-utils</groupId>
+			<artifactId>cxf-xjc-runtime</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>
@@ -55,7 +68,7 @@
 						</goals>
 						<configuration>
 							<wsdlRoot>${basedir}/src/main/resources/wsdl</wsdlRoot>
-							<sourceRoot>${basedir}/src/main/java</sourceRoot>
+							<sourceRoot>${basedir}/target/generated-sources</sourceRoot>
 							<includes>
 								<include>*.wsdl</include>
 							</includes>
@@ -63,7 +76,7 @@
 								<extraargs>
 									<!-- DataMapper compatibility requires that the boolean getters 
 										and setters follow naming conventions for other getters and setters. -->
-									<extraarg>-xjc-Xbg</extraarg>
+									<extraarg>-xjc-Xts-Xbg</extraarg>
 									<extraarg>-verbose</extraarg>
 									<extraarg>-catalog</extraarg>
 									<extraarg>${basedir}/src/main/resources/wsdl/jax-ws-catalog.xml</extraarg>
@@ -78,14 +91,20 @@
 					<dependency>
 						<groupId>org.apache.cxf</groupId>
 						<artifactId>cxf-rt-bindings-soap</artifactId>
-						<version>3.1.0</version>
+						<version>${cxf.version}</version>
 					</dependency>
 					<!-- Boolean getters/setters -->
 					<dependency>
 						<groupId>org.apache.cxf.xjcplugins</groupId>
 						<artifactId>cxf-xjc-boolean</artifactId>
-						<version>3.1.0</version>
+						<version>3.2.1</version>
 					</dependency>
+					<dependency>
+						<groupId>org.apache.cxf.xjcplugins</groupId>
+						<artifactId>cxf-xjc-ts</artifactId>
+						<version>3.2.1</version>
+					</dependency>
+
 				</dependencies>
 			</plugin>
 		</plugins>

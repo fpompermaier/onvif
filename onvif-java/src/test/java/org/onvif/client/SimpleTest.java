@@ -37,7 +37,7 @@ public class SimpleTest {
 			String profileToken = confStr[3];
 			try {
 				System.out.println("Connect to camera, please wait ...");
-				OnvifDevice cam = new OnvifDevice(deviceIp, user, password);
+				OnvifDevice cam = OnvifDevice.builder(deviceIp).username(user).password(password).build();
 				System.out.printf("Connected to device %s (%s)\n", cam.getDeviceInfo(), deviceName);
 				onvifCameras.put(deviceName, cam);
 				onvifCamerasTokens.put(deviceName, profileToken);

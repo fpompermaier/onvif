@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
 	<rewriteURI uriStartString="http://" rewritePrefix="local/"/>	
-	<rewriteURI uriStartString="../ver10/device/wsdl/devicemgmt.wsdl" rewritePrefix="devicemgmt_2.5.wsdl"/>
-	<rewriteURI uriStartString="../ver10/media/wsdl/media.wsdl" rewritePrefix="media_2.6.wsdl"/>	
+	<rewriteURI uriStartString="../ver10/device/wsdl/devicemgmt.wsdl" rewritePrefix="devicemgmt_17.06.wsdl"/>
+	<rewriteURI uriStartString="../ver10/media/wsdl/media.wsdl" rewritePrefix="media_17.06.wsdl"/>	
 	<rewriteURI uriStartString="http://www.onvif.org/onvif/ver10/schema/onvif.xsd" rewritePrefix="local/www.onvif.org/ver10/schema/onvif.xsd"/>	
+	<rewriteURI uriStartString="http://www.onvif.org/onvif/ver10/schema/common.xsd" rewritePrefix="local/www.onvif.org/ver10/schema/common.xsd"/>
 	<rewriteURI uriStartString="../../../ver10/schema/onvif.xsd" rewritePrefix="local/www.onvif.org/ver10/schema/onvif.xsd"/>	
 	<rewriteURI uriStartString="../ver10/schema/onvif.xsd" rewritePrefix="local/www.onvif.org/ver10/schema/onvif.xsd"/>	
 	<rewriteURI uriStartString="types.xsd" rewritePrefix="local/www.onvif.org/ver10/pacs/types.xsd"/>
