@@ -16,6 +16,7 @@ bin/**
 *.swp
 *.swo
 
+onvif-java/.factorypath
 local.properties
 .classpath
 .settings/
