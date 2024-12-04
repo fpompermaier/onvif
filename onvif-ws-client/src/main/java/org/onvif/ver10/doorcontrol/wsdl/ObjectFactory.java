@@ -1,7 +1,7 @@
 
 package org.onvif.ver10.doorcontrol.wsdl;
 
-import javax.xml.bind.annotation.XmlRegistry;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 
 /**

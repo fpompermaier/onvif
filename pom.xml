@@ -9,9 +9,8 @@
 
   <properties>
     <java.version>21</java.version>
-    <cxf.version>3.3.2</cxf.version>
-    <checkstyle-maven-plugin.version>3.0.0</checkstyle-maven-plugin.version>
-    <javax.activation.version>1.2.0</javax.activation.version>
+    <cxf.version>4.0.1</cxf.version>
+    <checkstyle-maven-plugin.version>3.6.0</checkstyle-maven-plugin.version>
     <jaxb.api.version>2.3.1</jaxb.api.version>         <!-- 2.3.0,  2.3.1 or 2.4.0-b180830.0359 -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

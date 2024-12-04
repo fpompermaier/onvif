@@ -1,7 +1,7 @@
 
 package org.w3._2005._05.xmlmime;
 
-import javax.xml.bind.annotation.XmlRegistry;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 
 /**

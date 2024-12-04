@@ -3,12 +3,12 @@ package org.oasis_open.docs.wsn.t_1;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAnyAttribute;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAnyAttribute;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
+import jakarta.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.cxf.xjc.runtime.JAXBToStringStyle;
 
@@ -38,8 +38,8 @@ import org.apache.cxf.xjc.runtime.JAXBToStringStyle;
     "documentation"
 })
 @XmlSeeAlso({
-    TopicNamespaceType.class,
     TopicSetType.class,
+    TopicNamespaceType.class,
     TopicType.class
 })
 public abstract class ExtensibleDocumented {

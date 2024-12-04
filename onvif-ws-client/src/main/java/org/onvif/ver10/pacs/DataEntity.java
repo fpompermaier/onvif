@@ -1,14 +1,15 @@
 
 package org.onvif.ver10.pacs;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
+import jakarta.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.cxf.xjc.runtime.JAXBToStringStyle;
-import org.onvif.ver10.doorcontrol.wsdl.DoorInfoBase;
+import org.onvif.ver10.accesscontrol.wsdl.AccessPointInfoBase;
+import org.onvif.ver10.accesscontrol.wsdl.AreaInfoBase;
 
 
 /**
@@ -38,7 +39,8 @@ import org.onvif.ver10.doorcontrol.wsdl.DoorInfoBase;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataEntity")
 @XmlSeeAlso({
-    DoorInfoBase.class
+    AccessPointInfoBase.class,
+    AreaInfoBase.class
 })
 public class DataEntity {
 

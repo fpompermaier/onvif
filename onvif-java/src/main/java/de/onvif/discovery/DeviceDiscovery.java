@@ -29,11 +29,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.MimeHeaders;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.MimeHeaders;
+import jakarta.xml.soap.SOAPBody;
+import jakarta.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPMessage;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -56,8 +56,28 @@ public class DeviceDiscovery {
   public static final boolean enableIPv6 = false;
 
   public static final String WS_DISCOVERY_ADDRESS_IPv6 = "[FF02::C]";
-  public static final String WS_DISCOVERY_PROBE_MESSAGE =
-      "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:wsa=\"http://schemas.xmlsoap.org/ws/2004/08/addressing\" xmlns:tns=\"http://schemas.xmlsoap.org/ws/2005/04/discovery\"><soap:Header><wsa:Action>http://schemas.xmlsoap.org/ws/2005/04/discovery/Probe</wsa:Action><wsa:MessageID>urn:uuid:c032cfdd-c3ca-49dc-820e-ee6696ad63e2</wsa:MessageID><wsa:To>urn:schemas-xmlsoap-org:ws:2005:04:discovery</wsa:To></soap:Header><soap:Body><tns:Probe/></soap:Body></soap:Envelope>";
+  public static final String WS_DISCOVERY_PROBE_MESSAGE = """
+            <?xml version="1.0" encoding="utf-8"?>
+            <Envelope xmlns:tds="http://www.onvif.org/ver10/device/wsdl" xmlns="http://www.w3.org/2003/05/soap-envelope">
+                <Header>
+                    <wsa:MessageID xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
+                        uuid:732fb73a-5681-19f5-0ad8-522c31113505
+                    </wsa:MessageID>
+                    <wsa:To xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
+                        urn:schemas-xmlsoap-org:ws:2005:04:discovery
+                    </wsa:To>
+                    <wsa:Action xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
+                        http://schemas.xmlsoap.org/ws/2005/04/discovery/Probe
+                    </wsa:Action>
+                </Header>
+                <Body>
+                    <Probe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                           xmlns="http://schemas.xmlsoap.org/ws/2005/04/discovery">
+                        <Types>tds:Device</Types>
+                        <Scopes/>
+                    </Probe>
+                </Body>
+            </Envelope><?xml version="1.0" encoding="utf-8"?>""";
   private static final Random random = new SecureRandom();
 
   public static void main(String[] args) throws InterruptedException {
