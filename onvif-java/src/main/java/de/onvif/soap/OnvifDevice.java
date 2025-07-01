@@ -45,11 +45,14 @@ public class OnvifDevice {
   private final URL url; // Example http://host:port, https://host, http://host, http://ip_address
 
   private Device device;
-  private Media media;
-  private PTZ ptz;
-  private ImagingPort imaging;
-  private EventPortType events;
+  private volatile Media media;
+  private volatile PTZ ptz;
+  private volatile ImagingPort imaging;
+  private volatile EventPortType events;
   public final EventService eventService = new EventService();
+
+  // Cache capabilities to avoid repeated network requests
+  private volatile Capabilities capabilities;
 
   private static boolean verbose = false; // enable/disable logging of SOAP messages
   final SimpleSecurityHandler securityHandler;
@@ -112,56 +115,43 @@ public class OnvifDevice {
   }
 
   /**
-   * Initalizes the addresses used for SOAP messages and to get the internal IP, if given IP is a
-   * proxy.
+   * Initialize ONVIF device connection, only creates Device service, other services use lazy initialization
+   * This strategy significantly reduces initial memory usage and startup time
    *
-   * @throws ConnectException Get thrown if device doesn't give answers to GetCapabilities()
-   * @throws SOAPException
+   * @throws ConnectException Thrown when device is inaccessible or invalid, doesn't respond to SOAP messages
+   * @throws SOAPException SOAP related exceptions
    */
   protected void init() throws ConnectException, SOAPException {
+    logger.debug("Initializing ONVIF device connection: {}", url);
 
     DeviceService deviceService = new DeviceService(null, DeviceService.SERVICE);
-
     BindingProvider deviceServicePort = (BindingProvider) deviceService.getDevicePort();
-    this.device =
-        getServiceProxy(deviceServicePort, url.toString() + DEVICE_SERVICE).create(Device.class);
 
-    // resetSystemDateAndTime();		// don't modify the camera in a constructor.. :)
+        // Use OnvifServiceFactory to create Device service proxy
+    this.device = OnvifServiceFactory.createServiceProxy(
+        deviceServicePort,
+        url.toString() + DEVICE_SERVICE,
+        Device.class,
+        securityHandler,
+        verbose
+    );
 
-    Capabilities capabilities = this.device.getCapabilities(List.of(CapabilityCategory.ALL));
-    if (capabilities == null) {
+    // Get and cache capabilities to avoid subsequent repeated network requests
+    this.capabilities = this.device.getCapabilities(List.of(CapabilityCategory.ALL));
+    if (this.capabilities == null) {
       throw new ConnectException("Capabilities not reachable.");
     }
 
-    if (capabilities.getMedia() != null && capabilities.getMedia().getXAddr() != null) {
-      this.media = new MediaService().getMediaPort();
-      this.media =
-          getServiceProxy((BindingProvider) media, capabilities.getMedia().getXAddr())
-              .create(Media.class);
-    }
-
-    if (capabilities.getPTZ() != null && capabilities.getPTZ().getXAddr() != null) {
-      this.ptz = new PtzService().getPtzPort();
-      this.ptz =
-          getServiceProxy((BindingProvider) ptz, capabilities.getPTZ().getXAddr())
-              .create(PTZ.class);
-    }
-
-    if (capabilities.getImaging() != null && capabilities.getImaging().getXAddr() != null) {
-      this.imaging = new ImagingService().getImagingPort();
-      this.imaging =
-          getServiceProxy((BindingProvider) imaging, capabilities.getImaging().getXAddr())
-              .create(ImagingPort.class);
-    }
-
-    if (capabilities.getEvents() != null && capabilities.getEvents().getXAddr() != null) {
-      this.events = eventService.getEventPort();
-      this.events =
-          getServiceProxy((BindingProvider) events, capabilities.getEvents().getXAddr())
-              .create(EventPortType.class);
-    }
+    logger.debug("Device initialization completed, capabilities cached, other services will be initialized on demand");
+    // Note: Other services (Media, PTZ, Imaging, Events) now use lazy initialization
+    // They will only be created on first access, significantly reducing memory usage
   }
 
+  /**
+   * @deprecated Use OnvifServiceFactory instead for better memory management and Schema caching
+   * This method is retained only to ensure backward compatibility
+   */
+  @Deprecated
   public JaxWsProxyFactoryBean getServiceProxy(BindingProvider servicePort, String serviceAddr) {
 
     JaxWsProxyFactoryBean proxyFactory = new JaxWsProxyFactoryBean();
@@ -236,20 +226,123 @@ public class OnvifDevice {
     return device;
   }
 
+  /**
+   * Get cached device capabilities information
+   * This information was obtained and cached during initialization to avoid repeated network requests
+   */
+  public Capabilities getCapabilities() {
+    return capabilities;
+  }
+
   public PTZ getPtz() {
+    initPtzService();
     return ptz;
   }
 
+  /**
+   * Lazy initialization of PTZ service
+   * Uses double-checked locking pattern to ensure thread safety
+   */
+  private void initPtzService() {
+    if (ptz == null && capabilities.getPTZ() != null && capabilities.getPTZ().getXAddr() != null) {
+      synchronized (this) {
+        if (ptz == null) {
+          logger.debug("Lazy initializing PTZ service");
+          PtzService ptzService = new PtzService();
+          BindingProvider ptzServicePort = (BindingProvider) ptzService.getPtzPort();
+          this.ptz = OnvifServiceFactory.createServiceProxy(
+              ptzServicePort,
+              capabilities.getPTZ().getXAddr(),
+              PTZ.class,
+              securityHandler,
+              verbose
+          );
+        }
+      }
+    }
+  }
+
   public Media getMedia() {
+    initMediaService();
     return media;
   }
 
+  /**
+   * Lazy initialization of Media service
+   * Uses double-checked locking pattern to ensure thread safety
+   */
+  private void initMediaService() {
+    if (media == null && capabilities.getMedia() != null && capabilities.getMedia().getXAddr() != null) {
+      synchronized (this) {
+        if (media == null) {
+          logger.debug("Lazy initializing Media service");
+          MediaService mediaService = new MediaService();
+          BindingProvider mediaServicePort = (BindingProvider) mediaService.getMediaPort();
+          this.media = OnvifServiceFactory.createServiceProxy(
+              mediaServicePort,
+              capabilities.getMedia().getXAddr(),
+              Media.class,
+              securityHandler,
+              verbose
+          );
+        }
+      }
+    }
+  }
+
   public ImagingPort getImaging() {
+    initImagingService();
     return imaging;
   }
 
+  /**
+   * Lazy initialization of Imaging service
+   * Uses double-checked locking pattern to ensure thread safety
+   */
+  private void initImagingService() {
+    if (imaging == null && capabilities.getImaging() != null && capabilities.getImaging().getXAddr() != null) {
+      synchronized (this) {
+        if (imaging == null) {
+          logger.debug("Lazy initializing Imaging service");
+          ImagingService imagingService = new ImagingService();
+          BindingProvider imagingServicePort = (BindingProvider) imagingService.getImagingPort();
+          this.imaging = OnvifServiceFactory.createServiceProxy(
+              imagingServicePort,
+              capabilities.getImaging().getXAddr(),
+              ImagingPort.class,
+              securityHandler,
+              verbose
+          );
+        }
+      }
+    }
+  }
+
   public EventPortType getEvents() {
+    initEventsService();
     return events;
+  }
+
+  /**
+   * Lazy initialization of Events service
+   * Uses double-checked locking pattern to ensure thread safety
+   */
+  private void initEventsService() {
+    if (events == null && capabilities.getEvents() != null && capabilities.getEvents().getXAddr() != null) {
+      synchronized (this) {
+        if (events == null) {
+          logger.debug("Lazy initializing Events service");
+          BindingProvider eventsServicePort = (BindingProvider) eventService.getEventPort();
+          this.events = OnvifServiceFactory.createServiceProxy(
+              eventsServicePort,
+              capabilities.getEvents().getXAddr(),
+              EventPortType.class,
+              securityHandler,
+              verbose
+          );
+        }
+      }
+    }
   }
 
   public DateTime getDate() {
@@ -281,9 +374,12 @@ public class OnvifDevice {
 
   // returns http://host[:port]/path_for_snapshot
   public String getSnapshotUri(String profileToken) {
-    MediaUri sceenshotUri = media.getSnapshotUri(profileToken);
-    if (sceenshotUri != null) {
-      return sceenshotUri.getUri();
+    Media mediaService = getMedia();
+    if (mediaService != null) {
+      MediaUri sceenshotUri = mediaService.getSnapshotUri(profileToken);
+      if (sceenshotUri != null) {
+        return sceenshotUri.getUri();
+      }
     }
     return "";
   }
@@ -298,24 +394,34 @@ public class OnvifDevice {
 
   // Get snapshot uri for profile with index
   public String getSnapshotUri(int index) {
-    if (media.getProfiles().size() >= index)
-      return getSnapshotUri(media.getProfiles().get(index).getToken());
+    Media mediaService = getMedia();
+    if (mediaService != null && mediaService.getProfiles().size() > index) {
+      return getSnapshotUri(mediaService.getProfiles().get(index).getToken());
+    }
     return "";
   }
 
   public String getStreamUri(int index) {
-    return getStreamUri(media.getProfiles().get(index).getToken());
+    Media mediaService = getMedia();
+    if (mediaService != null && mediaService.getProfiles().size() > index) {
+      return getStreamUri(mediaService.getProfiles().get(index).getToken());
+    }
+    return "";
   }
 
   // returns rtsp://host[:port]/path_for_rtsp
   public String getStreamUri(String profileToken) {
-    StreamSetup streamSetup = new StreamSetup();
-    Transport t = new Transport();
-    t.setProtocol(TransportProtocol.RTSP);
-    streamSetup.setTransport(t);
-    streamSetup.setStream(StreamType.RTP_UNICAST);
-    MediaUri rtsp = media.getStreamUri(streamSetup, profileToken);
-    return rtsp != null ? rtsp.getUri() : "";
+    Media mediaService = getMedia();
+    if (mediaService != null) {
+      StreamSetup streamSetup = new StreamSetup();
+      Transport t = new Transport();
+      t.setProtocol(TransportProtocol.RTSP);
+      streamSetup.setTransport(t);
+      streamSetup.setStream(StreamType.RTP_UNICAST);
+      MediaUri rtsp = mediaService.getStreamUri(streamSetup, profileToken);
+      return rtsp != null ? rtsp.getUri() : "";
+    }
+    return "";
   }
 
   public static boolean isVerbose() {
@@ -324,5 +430,40 @@ public class OnvifDevice {
 
   public static void setVerbose(boolean verbose) {
     OnvifDevice.verbose = verbose;
+  }
+
+  /**
+   * Check if service is initialized
+   */
+  public boolean isServiceInitialized(String serviceName) {
+    switch (serviceName.toLowerCase()) {
+      case "media": return media != null;
+      case "ptz": return ptz != null;
+      case "imaging": return imaging != null;
+      case "events": return events != null;
+      case "device": return device != null;
+      default: return false;
+    }
+  }
+
+  /**
+   * Get count of initialized services
+   */
+  public int getInitializedServicesCount() {
+    int count = 0;
+    if (device != null) count++;
+    if (media != null) count++;
+    if (ptz != null) count++;
+    if (imaging != null) count++;
+    if (events != null) count++;
+    return count;
+  }
+
+  /**
+   * Clean up resources and clear cache (static method, affects all instances)
+   * Recommended to call when application shuts down
+   */
+  public static void cleanupResources() {
+    OnvifServiceFactory.clearCache();
   }
 }
