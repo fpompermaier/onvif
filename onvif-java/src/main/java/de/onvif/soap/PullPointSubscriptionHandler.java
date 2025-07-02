@@ -64,8 +64,22 @@ public class PullPointSubscriptionHandler {
                     eventWs.createPullPointSubscription(cpps);
 
             final String serviceAddress = getWSAAddress(resp.getSubscriptionReference());
-            pullPointSubscription = device.getServiceProxy((BindingProvider) device.eventService.getEventPort(), serviceAddress).create(PullPointSubscription.class);
-            subscriptionManager = device.getServiceProxy((BindingProvider) device.eventService.getEventPort(), serviceAddress).create(SubscriptionManager.class);
+            // Use OnvifServiceFactory instead of deprecated getServiceProxy method
+            BindingProvider eventServicePort = (BindingProvider) device.eventService.getEventPort();
+            pullPointSubscription = OnvifServiceFactory.createServiceProxy(
+                eventServicePort,
+                serviceAddress,
+                PullPointSubscription.class,
+                device.securityHandler,
+                OnvifDevice.isVerbose()
+            );
+            subscriptionManager = OnvifServiceFactory.createServiceProxy(
+                eventServicePort,
+                serviceAddress,
+                SubscriptionManager.class,
+                device.securityHandler,
+                OnvifDevice.isVerbose()
+            );
 
             final Client pullPointSubscriptionProxy = ClientProxy.getClient(pullPointSubscription);
             final Client subscriptionManagerProxy = ClientProxy.getClient(subscriptionManager);
@@ -102,7 +116,7 @@ public class PullPointSubscriptionHandler {
             var messageIdHdr = new Header(messageID, messageIDEl);
             var toHdr = new Header(to, toEl);
             var replyToHdr = new Header(replyTo, replyToEl);
-            
+
             headers.clear();
             headers.add(actionHdr);
             headers.add(messageIdHdr);
